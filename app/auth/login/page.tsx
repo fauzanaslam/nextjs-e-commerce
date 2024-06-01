@@ -1,7 +1,14 @@
-import React from "react";
+import React, { Suspense } from "react";
+import SigninForm from "../../../components/form/SigninForm";
 
 const page = () => {
-  return <div>login pages</div>;
+  return (
+    <div>
+      <Suspense>
+        <SigninForm />
+      </Suspense>
+    </div>
+  );
 };
 
 export default page;
