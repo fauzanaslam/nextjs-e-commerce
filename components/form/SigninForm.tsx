@@ -4,6 +4,7 @@ import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import React, { FormEvent, useState, useEffect } from "react";
+import { FcGoogle } from "react-icons/fc";
 
 const SigninForm = () => {
   const router = useRouter();
@@ -82,11 +83,22 @@ const SigninForm = () => {
               </div>
               <button
                 type="submit"
-                className="w-full my-10 bg-blue-500 rounded text-white py-2 hover:bg-blue-400"
+                className="w-full my-5 bg-blue-500 rounded text-white py-2 hover:bg-blue-400 font-semibold"
               >
                 {isLoading ? "Loading..." : "Login"}
               </button>
             </form>
+            <hr />
+            <button
+              type="button"
+              onClick={() =>
+                signIn("google",{callbackUrl, redirect: false})
+              }
+              className="w-full my-5 bg-blue-500 rounded text-white py-2 hover:bg-blue-400 flex justify-center items-center gap-2 font-semibold"
+            >
+              <FcGoogle size={24} />
+              Login with Google
+            </button>
             <p className="text-center">
               Don{"'"}t have an account? Register
               <Link href="/auth/register" className="text-blue-500">

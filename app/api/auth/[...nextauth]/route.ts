@@ -1,6 +1,7 @@
 import nextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { signIn } from "@/libs/firebase/service";
+import GoogleProvider from "next-auth/providers/google";
+import { loginWithGoogle, signIn } from "@/libs/firebase/service";
 import { compare } from "bcrypt";
 
 const authOptions: NextAuthOptions = {
@@ -25,16 +26,17 @@ const authOptions: NextAuthOptions = {
         if (user) {
           const passwordConfirm = await compare(password, user.password);
           if (passwordConfirm) {
-            console.log("User authenticated:", user);
             return user;
           }
-          console.log("Password mismatch for user:", email);
           return null;
         } else {
-          console.log("No user found with email:", email);
           return null;
         }
       },
+    }),
+    GoogleProvider({
+      clientId: process.env.GOOGLE_OAUTH_CLIENT_ID || "",
+      clientSecret: process.env.GOOGLE_OAUTH_CLIENT_SECRET || "",
     }),
   ],
   callbacks: {
@@ -45,7 +47,20 @@ const authOptions: NextAuthOptions = {
         token.phone = user.phone;
         token.role = user.role;
       }
-      console.log("JWT token created:", token);
+
+      if (account?.provider === "google") {
+        const data = {
+          fullname: user.name,
+          email: user.email,
+          type: "google",
+        };
+        await loginWithGoogle(data, (data: any) => {
+          token.email = data.email;
+          token.fullname = data.fullname;
+          token.role = data.role;
+        });
+      }
+
       return token;
     },
 
@@ -56,7 +71,6 @@ const authOptions: NextAuthOptions = {
         session.user.phone = token.phone;
         session.user.role = token.role;
       }
-      console.log("Session created:", session);
       return session;
     },
   },
